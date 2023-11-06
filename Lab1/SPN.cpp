@@ -34,7 +34,7 @@ int main(){
                     subu[q]=u[j*4+q];
                 }// 得到以四个比特为一组的子串
                 temp1= subu.to_ulong();// 将子串转换为整数
-                temp2 = Sbox[temp1];// 查询Sbox来得到应该代换结果
+                temp2 = Sbox[temp1];// 查询Sbox来得到代换结果
                 for(int q=3;q>=0;q--){
                     v[q+4*j]=temp2[q]; 
                 }
