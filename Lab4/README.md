@@ -1,1 +1,1 @@
-- 用**Miller-Rabin算法**完成素性检测，OJ 上输入为 long long 类型，输出 Yes or No。
+- 用 **Miller-Rabin算法** 完成素性检测，OJ 上输入为 long long 类型，输出 Yes or No。
