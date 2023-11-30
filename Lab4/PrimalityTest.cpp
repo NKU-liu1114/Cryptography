@@ -1,19 +1,36 @@
 #include<iostream>
 #include<random>
 using namespace std;
-#define TestRound 20
+#define TestRound 10
+typedef unsigned long long ull; 
+
+/*
+Modular Multiplication on Feild Zn
+*/
+ull ModMul(ull a, ull b, ull n){
+    ull result = 0;
+    a = a % n;
+    while(b){
+        if(b & 1){
+            result= (result+a) % n;
+        }
+        a=(a << 1) % n;
+        b>>=1;
+    }
+    return  result;
+}
 
 /*
 Square-Multi on Field Zn
 return a^m mod n
 */
-long long Square_Multi(long long a, long long m, long long n) {
-    long long result = 1, current = a;
+ull Square_Multi(ull a, ull m, ull n) {
+    ull result = 1, current = a;
     while (m) {
         if (m & 1) {
-            result = (result * current) % n;
+            result = ModMul(result,current,n);
         }
-        current = (current * current) % n;
+        current = ModMul(current,current,n);
         m >>= 1;
     }
     return result;
@@ -22,7 +39,7 @@ long long Square_Multi(long long a, long long m, long long n) {
 /* 
 Decompose n:n-1=(2^k)*m
 */
-void Decompose(long long n,long long& k,long long& m){
+void Decompose(ull n,ull& k,ull& m){
     k=0;n--;
     while(!(n & 1)){
         k++;
@@ -34,44 +51,51 @@ void Decompose(long long n,long long& k,long long& m){
 /*
 Miller-Rabin Algorithm
 */
-bool Miller_Rabin(long long n){
-    if(n==2||n==3){
+bool Miller_Rabin(ull n){
+
+    ull k=0,m=0,a,b;
+    Decompose(n,k,m);
+    // get the random number
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_int_distribution<ull> dis(1, n - 1);
+    a=dis(gen);
+    // b = a^m mod n
+    b=Square_Multi(a,m,n);
+    if(b%n==1){
         return true;
     }
-    if(n%2==0||n<=1){
+    for(ull i =0;i<k;i++){
+        if(b%n==n-1){
+            return true;
+        }
+        else b=ModMul(b,b,n);
+    }
+    return false;
+}
+/*
+take TestRound  Miller_Rabin Test
+*/
+bool IsPrime(ull n){
+    if(n<=1||n==4){
         return false;
     }
-    long long k=0,m=0,a,b;
-    Decompose(n,k,m);
-    for(int Nr=0;Nr<TestRound;Nr++){
-        // get the random number
-        random_device rd;
-        mt19937_64 gen(rd());
-        uniform_int_distribution<long long> dis(1, n - 1);
-        a=dis(gen);
-        // b = a^m mod n
-        b=Square_Multi(a,m,n);
-        if(b%n){
-            continue;
+    if(n<=3){
+        return true;
+    }
+    for(int j=0;j<TestRound;j++){
+        if(!Miller_Rabin(n)){
+            return false;
         }
-        for(long long i=0;i<=k-1;i++){
-            if(b==n-1){
-                break;
-            }
-            else b=(b*b)%n;
-        }
-        if(b==n-1){
-            continue;
-        }
-        return false;
     }
     return true;
 }
+
 int main(){
     // input the number tested
-    long long n;
+    ull n;
     cin>>n;
-    if(Miller_Rabin(n)){
+    if(IsPrime(n)){
         cout<<"Yes";
     }
     else cout<<"No";
